@@ -31,3 +31,14 @@ return [
 
 ```
 
+## 使用
+
+```php
+use Hyperf\Utils\ApplicationContext;
+use Illuminate\Encryption\Contracts\Encrypter;
+
+$encrypter = ApplicationContext::getContainer()->get(Encrypter::class);
+
+$encrypted = $encrypter->encrypt('foo');
+$decrypted = $encrypter->decrypt($encrypted);
+```
