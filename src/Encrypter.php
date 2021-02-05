@@ -1,10 +1,19 @@
 <?php
 
+declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
 namespace Illuminate\Encryption;
 
-use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
-use Illuminate\Contracts\Encryption\EncryptException;
+use Illuminate\Encryption\Contracts\DecryptException;
+use Illuminate\Encryption\Contracts\Encrypter as EncrypterContract;
+use Illuminate\Encryption\Contracts\EncryptException;
 use RuntimeException;
 
 class Encrypter implements EncrypterContract
@@ -26,9 +35,8 @@ class Encrypter implements EncrypterContract
     /**
      * Create a new encrypter instance.
      *
-     * @param  string  $key
-     * @param  string  $cipher
-     * @return void
+     * @param string $key
+     * @param string $cipher
      *
      * @throws \RuntimeException
      */
@@ -47,22 +55,22 @@ class Encrypter implements EncrypterContract
     /**
      * Determine if the given key and cipher combination is valid.
      *
-     * @param  string  $key
-     * @param  string  $cipher
+     * @param string $key
+     * @param string $cipher
      * @return bool
      */
     public static function supported($key, $cipher)
     {
         $length = mb_strlen($key, '8bit');
 
-        return ($cipher === 'AES-128-CBC' && $length === 16) ||
-               ($cipher === 'AES-256-CBC' && $length === 32);
+        return ($cipher === 'AES-128-CBC' && $length === 16)
+               || ($cipher === 'AES-256-CBC' && $length === 32);
     }
 
     /**
      * Create a new encryption key for the given cipher.
      *
-     * @param  string  $cipher
+     * @param string $cipher
      * @return string
      */
     public static function generateKey($cipher)
@@ -73,11 +81,10 @@ class Encrypter implements EncrypterContract
     /**
      * Encrypt the given value.
      *
-     * @param  mixed  $value
-     * @param  bool  $serialize
-     * @return string
-     *
+     * @param mixed $value
+     * @param bool $serialize
      * @throws \Illuminate\Contracts\Encryption\EncryptException
+     * @return string
      */
     public function encrypt($value, $serialize = true)
     {
@@ -88,7 +95,10 @@ class Encrypter implements EncrypterContract
         // value can be verified later as not having been changed by the users.
         $value = \openssl_encrypt(
             $serialize ? serialize($value) : $value,
-            $this->cipher, $this->key, 0, $iv
+            $this->cipher,
+            $this->key,
+            0,
+            $iv
         );
 
         if ($value === false) {
@@ -112,10 +122,9 @@ class Encrypter implements EncrypterContract
     /**
      * Encrypt a string without serialization.
      *
-     * @param  string  $value
-     * @return string
-     *
+     * @param string $value
      * @throws \Illuminate\Contracts\Encryption\EncryptException
+     * @return string
      */
     public function encryptString($value)
     {
@@ -125,11 +134,10 @@ class Encrypter implements EncrypterContract
     /**
      * Decrypt the given value.
      *
-     * @param  string  $payload
-     * @param  bool  $unserialize
-     * @return mixed
-     *
+     * @param string $payload
+     * @param bool $unserialize
      * @throws \Illuminate\Contracts\Encryption\DecryptException
+     * @return mixed
      */
     public function decrypt($payload, $unserialize = true)
     {
@@ -141,7 +149,11 @@ class Encrypter implements EncrypterContract
         // we will then unserialize it and return it out to the caller. If we are
         // unable to decrypt this value we will throw out an exception message.
         $decrypted = \openssl_decrypt(
-            $payload['value'], $this->cipher, $this->key, 0, $iv
+            $payload['value'],
+            $this->cipher,
+            $this->key,
+            0,
+            $iv
         );
 
         if ($decrypted === false) {
@@ -154,10 +166,9 @@ class Encrypter implements EncrypterContract
     /**
      * Decrypt the given string without unserialization.
      *
-     * @param  string  $payload
-     * @return string
-     *
+     * @param string $payload
      * @throws \Illuminate\Contracts\Encryption\DecryptException
+     * @return string
      */
     public function decryptString($payload)
     {
@@ -165,24 +176,33 @@ class Encrypter implements EncrypterContract
     }
 
     /**
+     * Get the encryption key.
+     *
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
      * Create a MAC for the given value.
      *
-     * @param  string  $iv
-     * @param  mixed  $value
+     * @param string $iv
+     * @param mixed $value
      * @return string
      */
     protected function hash($iv, $value)
     {
-        return hash_hmac('sha256', $iv.$value, $this->key);
+        return hash_hmac('sha256', $iv . $value, $this->key);
     }
 
     /**
      * Get the JSON array from the given payload.
      *
-     * @param  string  $payload
-     * @return array
-     *
+     * @param string $payload
      * @throws \Illuminate\Contracts\Encryption\DecryptException
+     * @return array
      */
     protected function getJsonPayload($payload)
     {
@@ -205,35 +225,25 @@ class Encrypter implements EncrypterContract
     /**
      * Verify that the encryption payload is valid.
      *
-     * @param  mixed  $payload
+     * @param mixed $payload
      * @return bool
      */
     protected function validPayload($payload)
     {
-        return is_array($payload) && isset($payload['iv'], $payload['value'], $payload['mac']) &&
-               strlen(base64_decode($payload['iv'], true)) === openssl_cipher_iv_length($this->cipher);
+        return is_array($payload) && isset($payload['iv'], $payload['value'], $payload['mac'])
+               && strlen(base64_decode($payload['iv'], true)) === openssl_cipher_iv_length($this->cipher);
     }
 
     /**
      * Determine if the MAC for the given payload is valid.
      *
-     * @param  array  $payload
      * @return bool
      */
     protected function validMac(array $payload)
     {
         return hash_equals(
-            $this->hash($payload['iv'], $payload['value']), $payload['mac']
+            $this->hash($payload['iv'], $payload['value']),
+            $payload['mac']
         );
-    }
-
-    /**
-     * Get the encryption key.
-     *
-     * @return string
-     */
-    public function getKey()
-    {
-        return $this->key;
     }
 }
