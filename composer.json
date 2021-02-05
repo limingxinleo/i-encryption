@@ -15,7 +15,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Illuminat\\Encryption\\": "src/"
+            "Illuminate\\Encryption\\": "src/"
         }
     },
     "autoload-dev": {
@@ -58,7 +58,7 @@
             "dev-master": "1.0-dev"
         },
         "hyperf": {
-            "config": "Illuminat\\Encryption\\ConfigProvider"
+            "config": "Illuminate\\Encryption\\ConfigProvider"
         }
     }
 }

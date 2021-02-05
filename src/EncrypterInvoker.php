@@ -9,12 +9,10 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
-namespace Illuminat\Encryption;
+namespace Illuminate\Encryption;
 
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Utils\Str;
-use Illuminate\Encryption\Encrypter;
-use Illuminate\Encryption\MissingAppKeyException;
 use Psr\Container\ContainerInterface;
 
 class EncrypterInvoker

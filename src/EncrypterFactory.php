@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
-namespace Illuminat\Encryption;
+namespace Illuminate\Encryption;
 
 use Illuminate\Encryption\Contracts\Encrypter as EncrypterInterface;
 use Psr\Container\ContainerInterface;
