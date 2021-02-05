@@ -3,7 +3,7 @@ name: PHPUnit
 on: [push, pull_request]
 
 env:
-  SWOOLE_VERSION: '4.5.10'
+  SWOOLE_VERSION: '4.6.2'
   SWOW_VERSION: 'develop'
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
           sudo sh -c "echo extension=swoole > /etc/php/${{ matrix.php-version }}/cli/conf.d/swoole.ini"
           php --ri swoole
       - name: Setup Swow
-        if: ${{ matrix.engine == 'swow' }}
+        if: ${{ matrix.engine == 'swow' && matrix.php-version != '7.2' }}
         run: |
           wget https://github.com/swow/swow/archive/"${SWOW_VERSION}".tar.gz -O swow.tar.gz
           mkdir -p swow
@@ -56,7 +56,10 @@ jobs:
           sudo sh -c "echo extension=swow > /etc/php/${{ matrix.php-version }}/cli/conf.d/swow.ini"
           php --ri swow
       - name: Setup Packages
-        run: composer update -o --no-scripts
+        run: composer update -o
+      - name: Setup Swow Engine
+        if: ${{ matrix.engine == 'swow' && matrix.php-version != '7.2' }}
+        run: composer require hyperf/engine-swow -o
       - name: Run Test Cases
         run: |
           composer analyse
